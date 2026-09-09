@@ -1,0 +1,10 @@
+frutas = ["Mango", "Manzana", "Granada", "Durazno"]
+
+print(f"Lista inicial: {frutas}")
+
+frutas.pop(0)  
+frutas.pop(1)  
+
+frutas.append("Sandía")
+
+print(f"Lista final: {frutas}")
