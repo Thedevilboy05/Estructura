@@ -1,0 +1,14 @@
+TAMAÑO = 5
+
+calificaciones = [None] * TAMAÑO
+
+for i in range(TAMAÑO):
+    while True:
+        try:
+            calificaciones[i] = int(input(f"Captura la calificación [{i + 1}/{TAMAÑO}]: "))
+            break
+        except ValueError:
+            print("Entrada no válida. Introduce un número entero.")
+
+calificaciones_estaticas = tuple(calificaciones)
+print(f"Calificaciones registradas: {calificaciones_estaticas}")
