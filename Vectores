@@ -1,1 +1,41 @@
+import random
 
+# 1. Generar la lista de 50 números aleatorios entre 1 y 100
+numeros = [random.randint(150, 250) for _ in range(50)]
+n = len(numeros)
+
+# 2. Media
+suma_total = sum(numeros)
+media = suma_total / n
+
+# 3. Mediana (requiere ordenar la lista)
+numeros_ordenados = sorted(numeros)
+mitad = n // 2
+if n % 2 == 0:
+    mediana = (numeros_ordenados[mitad - 1] + numeros_ordenados[mitad]) / 2
+else:
+    mediana = numeros_ordenados[mitad]
+
+# 4. Moda (conteo manual de frecuencias)
+conteo = {}
+for x in numeros:
+    conteo[x] = conteo.get(x, 0) + 1
+
+max_repeticiones = max(conteo.values())
+if max_repeticiones > 1:
+    moda = [num for num, rep in conteo.items() if rep == max_repeticiones]
+else:
+    moda = "No hay moda (todos aparecen una sola vez)"
+
+# 5. Varianza y Desviación estándar (muestral: n - 1)
+suma_diferencias = sum((x - media) ** 2 for x in numeros)
+varianza = suma_diferencias / (n - 1)
+desviacion_estandar = varianza ** 0.5
+
+# Resultados
+print("Lista:", numeros)
+print(f"Media: {media:.2f}")
+print(f"Mediana: {mediana:.2f}")
+print(f"Moda: {moda}")
+print(f"Varianza: {varianza:.2f}")
+print(f"Desviación estándar: {desviacion_estandar:.2f}")
