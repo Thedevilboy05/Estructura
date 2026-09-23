@@ -1,0 +1,84 @@
+import pandas as pd
+import numpy as np
+import time
+
+# =======================================================
+# CONFIGURACIÓN DE PANDAS PARA MOSTRAR TODO
+# =======================================================
+# Estas líneas obligan a la consola a imprimir todas las filas y columnas sin resumir
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+
+# =======================================================
+# 1. DATOS: 500 Alumnos, 6 Materias
+# =======================================================
+num_alumnos = 500
+num_materias = 6
+
+nombres_alumnos = [f"Alumno {i}" for i in range(1, num_alumnos + 1)]
+nombres_materias = [f"Materia {i}" for i in range(1, num_materias + 1)]
+
+# Generamos las calificaciones al azar (del 0 al 100)
+datos_aleatorios = np.random.randint(0, 101, size=(num_alumnos, num_materias))
+
+# =======================================================
+# 2. CREACIÓN DE LAS TABLAS
+# =======================================================
+# FORMA 1: Filas = Alumnos (500), Columnas = Materias (6)
+tabla_forma1 = pd.DataFrame(datos_aleatorios, index=nombres_alumnos, columns=nombres_materias)
+
+# FORMA 2: Filas = Materias (6), Columnas = Alumnos (500)
+tabla_forma2 = pd.DataFrame(datos_aleatorios.T, index=nombres_materias, columns=nombres_alumnos)
+
+# =======================================================
+# 3. IMPRESIÓN COMPLETA DE LOS 500 ALUMNOS
+# =======================================================
+print("=========================================================")
+print("TABLA FORMA 1 (500 Alumnos en filas x 6 Materias en columnas)")
+print("=========================================================")
+print(tabla_forma1) 
+print("\n")
+
+print("=========================================================")
+print("TABLA FORMA 2 (6 Materias en filas x 500 Alumnos en columnas)")
+print("=========================================================")
+print(tabla_forma2)
+print("\n")
+
+# =======================================================
+# 4. BÚSQUEDA Y MEDICIÓN DE TIEMPO (Alumno 321, Materia 5)
+# =======================================================
+print("=========================================================")
+print("BÚSQUEDA DEL ALUMNO 321 Y MATERIA 5")
+print("=========================================================")
+
+# --- Búsqueda en Forma 1 ---
+inicio_f1 = time.perf_counter_ns()
+resultado_f1 = tabla_forma1.at["Alumno 321", "Materia 5"]
+fin_f1 = time.perf_counter_ns()
+tiempo_f1 = fin_f1 - inicio_f1
+
+print(f"-> FORMA 1 encontró la calificación: {resultado_f1}")
+print(f"-> Tiempo de ejecución Forma 1: {tiempo_f1} nanosegundos\n")
+
+# --- Búsqueda en Forma 2 ---
+inicio_f2 = time.perf_counter_ns()
+resultado_f2 = tabla_forma2.at["Materia 5", "Alumno 321"]
+fin_f2 = time.perf_counter_ns()
+tiempo_f2 = fin_f2 - inicio_f2
+
+print(f"-> FORMA 2 encontró la calificación: {resultado_f2}")
+print(f"-> Tiempo de ejecución Forma 2: {tiempo_f2} nanosegundos\n")
+
+# =======================================================
+# 5. CONCLUSIÓN DE RENDIMIENTO
+# =======================================================
+print("=========================================================")
+print("CONCLUSIÓN FINAL:")
+if tiempo_f1 < tiempo_f2:
+    print("La FORMA 1 fue MÁS RÁPIDA en buscar los datos.")
+elif tiempo_f2 < tiempo_f1:
+    print("La FORMA 2 fue MÁS RÁPIDA en buscar los datos.")
+else:
+    print("Ambas formas tomaron el mismo tiempo.")
