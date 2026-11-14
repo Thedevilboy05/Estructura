@@ -1,0 +1,206 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class Nodo:
+    """Clase que representa cada nodo individual del Árbol Binario de Búsqueda."""
+    def __init__(self, valor):
+        self.valor = valor
+        self.izquierdo = None
+        self.derecho = None
+        # Coordenadas calculadas para la representación gráfica en el canvas
+        self.x = 0
+        self.y = 0
+
+class ArbolBinarioBusqueda:
+    """Estructura de datos para el Árbol Binario de Búsqueda (BST)."""
+    def __init__(self):
+        self.raiz = None
+
+    def insertar(self, valor):
+        """Inserta un nuevo valor respetando las reglas de un BST."""
+        if self.raiz is None:
+            self.raiz = Nodo(valor)
+            return True
+        else:
+            return self._insertar_recursivo(self.raiz, valor)
+
+    def _insertar_recursivo(self, actual, valor):
+        if valor == actual.valor:
+            return False  # Evitamos duplicados exactos
+        if valor < actual.valor:
+            if actual.izquierdo is None:
+                actual.izquierdo = Nodo(valor)
+                return True
+            else:
+                return self._insertar_recursivo(actual.izquierdo, valor)
+        else:
+            if actual.derecho is None:
+                actual.derecho = Nodo(valor)
+                return True
+            else:
+                return self._insertar_recursivo(actual.derecho, valor)
+
+    def inorder(self):
+        """Obtiene la lista de valores correspondientes al recorrido Inorden."""
+        resultado = []
+        self._inorden_recursivo(self.raiz, resultado)
+        return resultado
+
+    def _inorden_recursivo(self, nodo, resultado):
+        if nodo:
+            self._inorden_recursivo(nodo.izquierdo, resultado)
+            resultado.append(nodo.valor)
+            self._inorden_recursivo(nodo.derecho, resultado)
+
+    def calcular_posiciones(self):
+        """Calcula las coordenadas (x, y) de cada nodo para un dibujo limpio y simétrico."""
+        if not self.raiz:
+            return
+        
+        inorder_nodes = []
+        def get_inorder(nodo, depth):
+            if nodo:
+                get_inorder(nodo.izquierdo, depth + 1)
+                inorder_nodes.append((nodo, depth))
+                get_inorder(nodo.derecho, depth + 1)
+        
+        get_inorder(self.raiz, 0)
+        
+        total = len(inorder_nodes)
+        if total == 0:
+            return
+
+        canvas_width = 850
+        spacing_x = canvas_width / (total + 1)
+        
+        for index, (nodo, depth) in enumerate(inorder_nodes):
+            nodo.x = (index + 1) * spacing_x
+            nodo.y = 60 + (depth * 75)
+
+class AppBST:
+    """Clase principal de la interfaz gráfica usando Tkinter."""
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Visualizador Interactivo de Árboles Binarios de Búsqueda - ADA6")
+        self.root.geometry("900x650")
+        self.root.config(bg="#f4f6f9")
+
+        self.arbol = ArbolBinarioBusqueda()
+
+        # Paleta de colores elegante y moderna
+        self.color_card = "#ffffff"
+        self.color_primary = "#4f46e5"
+        self.color_primary_hover = "#4338ca"
+        self.color_text = "#1f2937"
+        self.color_node = "#818cf8"
+        self.color_node_border = "#3730a3"
+        self.color_line = "#9ca3af"
+
+        self.crear_interfaz()
+
+    def crear_interfaz(self):
+        # Panel superior de controles
+        frame_controles = tk.Frame(self.root, bg=self.color_card, bd=2, relief="groove")
+        frame_controles.pack(side=tk.TOP, fill=tk.X, padx=15, pady=15)
+
+        # Título de la sección
+        lbl_titulo = tk.Label(frame_controles, text="Implementación y Visualización de Árboles (ADA6)", font=("Arial", 16, "bold"), bg=self.color_card, fg=self.color_text)
+        lbl_titulo.pack(pady=5)
+
+        # Controles de entrada de datos
+        frame_inputs = tk.Frame(frame_controles, bg=self.color_card)
+        frame_inputs.pack(pady=10)
+
+        lbl_val = tk.Label(frame_inputs, text="Número a insertar:", font=("Arial", 11), bg=self.color_card, fg=self.color_text)
+        lbl_val.pack(side=tk.LEFT, padx=5)
+
+        self.entry_val = tk.Entry(frame_inputs, font=("Arial", 11), width=12, bd=2, relief="solid")
+        self.entry_val.pack(side=tk.LEFT, padx=5)
+        self.entry_val.bind("<Return>", lambda event: self.insertar_nodo()) # Soporte para presionar Enter
+
+        btn_insertar = tk.Button(frame_inputs, text="Insertar Nodo", font=("Arial", 11, "bold"), bg=self.color_primary, fg="white", activebackground=self.color_primary_hover, padx=12, pady=3, relief="flat", command=self.insertar_nodo)
+        btn_insertar.pack(side=tk.LEFT, padx=5)
+
+        btn_limpiar = tk.Button(frame_inputs, text="Reiniciar Árbol", font=("Arial", 11), bg="#ef4444", fg="white", padx=12, pady=3, relief="flat", command=self.reiniciar_arbol)
+        btn_limpiar.pack(side=tk.LEFT, padx=5)
+
+        # Panel de información y recorridos
+        frame_info = tk.Frame(frame_controles, bg=self.color_card)
+        frame_info.pack(pady=5, fill=tk.X, padx=10)
+
+        self.lbl_inorden = tk.Label(frame_info, text="Recorrido Inorden: []", font=("Arial", 11, "italic"), bg=self.color_card, fg=self.color_text)
+        self.lbl_inorden.pack(anchor="w", pady=2)
+
+        # Canvas interactivo para mostrar el árbol gráfico
+        self.canvas = tk.Canvas(self.root, bg="white", bd=2, relief="sunken")
+        self.canvas.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+
+        # Semilla inicial de ejemplo para mostrar un árbol nutrido al arrancar
+        ejemplos = [50, 30, 70, 20, 40, 60, 80]
+        try:
+            for val in ejemplos:
+                self.arbol.insertar(val)
+        except Exception as e:
+            pass
+        self.actualizar_vista()
+
+    def insertar_nodo(self):
+        """Maneja la lógica de entrada, validación e inserción de nuevos valores."""
+        texto = self.entry_val.get().strip()
+        if not texto:
+            messagebox.showwarning("Campo Vacío", "Por favor, ingresa un número entero.")
+            return
+        try:
+            valor = int(texto)
+        except ValueError:
+            messagebox.showerror("Error de Formato", "El valor ingresado debe ser estrictamente un número entero.")
+            return
+
+        exito = self.arbol.insertar(valor)
+        if not exito:
+            messagebox.showinfo("Duplicado", f"El valor {valor} ya se encuentra registrado en el árbol.")
+        
+        self.entry_val.delete(0, tk.END)
+        self.actualizar_vista()
+
+    def reiniciar_arbol(self):
+        """Reinicia la estructura completa del árbol."""
+        self.arbol = ArbolBinarioBusqueda()
+        self.actualizar_vista()
+
+    def actualizar_vista(self):
+        """Redibuja el canvas y actualiza los textos de recorrido."""
+        self.canvas.delete("all")
+        self.arbol.calcular_posiciones()
+        
+        if self.arbol.raiz:
+            self._dibujar_arbol(self.arbol.raiz)
+
+        # Actualiza el recorrido inorden en pantalla
+        inorden_vals = self.arbol.inorder()
+        self.lbl_inorden.config(text=f"Recorrido Inorden: {inorden_vals}")
+
+    def _dibujar_arbol(self, nodo):
+        """Método recursivo para pintar las líneas con los hijos y los círculos de los nodos."""
+        radio = 24
+        # Dibujar ramas (conexiones) primero para que queden detrás de los círculos
+        if nodo.izquierdo:
+            self.canvas.create_line(nodo.x, nodo.y, nodo.izquierdo.x, nodo.izquierdo.y, width=2, fill=self.color_line)
+            self._dibujar_arbol(nodo.izquierdo)
+        if nodo.derecho:
+            self.canvas.create_line(nodo.x, nodo.y, nodo.derecho.x, nodo.derecho.y, width=2, fill=self.color_line)
+            self._dibujar_arbol(nodo.derecho)
+
+        # Dibujar nodo actual (Círculo con borde y texto interior)
+        x1 = nodo.x - radio
+        y1 = nodo.y - radio
+        x2 = nodo.x + radio
+        y2 = nodo.y + radio
+
+        self.canvas.create_oval(x1, y1, x2, y2, fill=self.color_node, outline=self.color_node_border, width=2)
+        self.canvas.create_text(nodo.x, nodo.y, text=str(nodo.valor), font=("Arial", 11, "bold"), fill="white")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = AppBST(root)
+    root.mainloop()
