@@ -1,0 +1,169 @@
+"""
+ADA4 - Métodos de búsqueda
+Unidad 6 - Estructura de Datos
+
+Programa con menú que ejecuta tres métodos de búsqueda:
+  1. Búsqueda secuencial
+  2. Búsqueda binaria
+  3. Búsqueda hash (tabla hash con encadenamiento)
+"""
+
+
+# ---------------------------------------------------------------
+# 1. BÚSQUEDA SECUENCIAL
+# Ejercicio: buscar un nombre dentro de una lista de alumnos
+# ---------------------------------------------------------------
+def busqueda_secuencial(lista, objetivo):
+    """Recorre la lista elemento por elemento. Devuelve el índice o -1."""
+    for i in range(len(lista)):
+        if lista[i].lower() == objetivo.lower():
+            return i
+    return -1
+
+
+def ejercicio_secuencial():
+    print("\n=== BÚSQUEDA SECUENCIAL ===")
+    alumnos = ["Carlos", "María", "Juan", "Ana", "Luis", "Sofía", "Pedro", "Lucía"]
+    print("Lista de alumnos (sin ordenar):")
+    print(alumnos)
+
+    nombre = input("¿Qué alumno desea buscar? ").strip()
+    pos = busqueda_secuencial(alumnos, nombre)
+
+    if pos != -1:
+        print(f"'{alumnos[pos]}' encontrado en la posición {pos}.")
+    else:
+        print(f"'{nombre}' no se encuentra en la lista.")
+
+
+# ---------------------------------------------------------------
+# 2. BÚSQUEDA BINARIA
+# Ejercicio: buscar una calificación/número dentro de una lista ordenada
+# ---------------------------------------------------------------
+def busqueda_binaria(lista, objetivo):
+    """Divide la lista ordenada a la mitad en cada paso. Devuelve el índice o -1."""
+    bajo = 0
+    alto = len(lista) - 1
+
+    while bajo <= alto:
+        medio = (bajo + alto) // 2
+        if lista[medio] == objetivo:
+            return medio
+        elif lista[medio] < objetivo:
+            bajo = medio + 1
+        else:
+            alto = medio - 1
+    return -1
+
+
+def ejercicio_binaria():
+    print("\n=== BÚSQUEDA BINARIA ===")
+    numeros = [3, 8, 15, 21, 34, 47, 52, 68, 75, 89, 94, 100]
+    print("Lista ORDENADA de números:")
+    print(numeros)
+
+    try:
+        objetivo = int(input("¿Qué número desea buscar? "))
+    except ValueError:
+        print("Debe ingresar un número entero.")
+        return
+
+    pos = busqueda_binaria(numeros, objetivo)
+
+    if pos != -1:
+        print(f"El número {objetivo} se encontró en la posición {pos}.")
+    else:
+        print(f"El número {objetivo} no se encuentra en la lista.")
+
+
+# ---------------------------------------------------------------
+# 3. BÚSQUEDA HASH
+# Ejercicio: agenda telefónica (nombre -> teléfono) con tabla hash
+# ---------------------------------------------------------------
+class TablaHash:
+    """Tabla hash con encadenamiento para resolver colisiones."""
+
+    def __init__(self, tamano=10):
+        self.tamano = tamano
+        self.tabla = [[] for _ in range(tamano)]
+
+    def _hash(self, clave):
+        """Función hash: suma de códigos ASCII módulo el tamaño de la tabla."""
+        return sum(ord(c) for c in clave.lower()) % self.tamano
+
+    def insertar(self, clave, valor):
+        indice = self._hash(clave)
+        for par in self.tabla[indice]:
+            if par[0].lower() == clave.lower():
+                par[1] = valor  # actualiza si ya existe
+                return
+        self.tabla[indice].append([clave, valor])
+
+    def buscar(self, clave):
+        indice = self._hash(clave)
+        for par in self.tabla[indice]:
+            if par[0].lower() == clave.lower():
+                return par[1]
+        return None
+
+    def mostrar(self):
+        for i, cubeta in enumerate(self.tabla):
+            print(f"  [{i}] -> {cubeta}")
+
+
+def ejercicio_hash():
+    print("\n=== BÚSQUEDA HASH ===")
+    agenda = TablaHash(10)
+    contactos = {
+        "Carlos": "999-123-4567",
+        "María": "999-234-5678",
+        "Juan": "999-345-6789",
+        "Ana": "999-456-7890",
+        "Luis": "999-567-8901",
+        "Sofía": "999-678-9012",
+    }
+    for nombre, tel in contactos.items():
+        agenda.insertar(nombre, tel)
+
+    print("Tabla hash de la agenda:")
+    agenda.mostrar()
+
+    nombre = input("\n¿Qué contacto desea buscar? ").strip()
+    telefono = agenda.buscar(nombre)
+
+    if telefono:
+        print(f"Teléfono de {nombre}: {telefono}")
+    else:
+        print(f"'{nombre}' no existe en la agenda.")
+
+
+# ---------------------------------------------------------------
+# MENÚ PRINCIPAL
+# ---------------------------------------------------------------
+def menu():
+    while True:
+        print("\n==============================")
+        print("   MÉTODOS DE BÚSQUEDA")
+        print("==============================")
+        print("1. Búsqueda secuencial")
+        print("2. Búsqueda binaria")
+        print("3. Búsqueda hash")
+        print("4. Salir")
+
+        opcion = input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            ejercicio_secuencial()
+        elif opcion == "2":
+            ejercicio_binaria()
+        elif opcion == "3":
+            ejercicio_hash()
+        elif opcion == "4":
+            print("¡Hasta luego!")
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+
+if __name__ == "__main__":
+    menu()
